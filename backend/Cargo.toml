@@ -1,0 +1,24 @@
+[package]
+name = "ghost-order-book-backend"
+version = "0.1.0"
+edition = "2021"
+description = "HFT AVX-512 backend for Midnight ZK Ghost Order Book"
+
+[dependencies]
+# Web framework and WebSockets
+axum = { version = "0.7", features = ["ws", "macros"] }
+
+# Asynchronous runtime for actor system
+tokio = { version = "1.35", features = ["full"] }
+
+# Serialization for Next.js metrics payload
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# High-performance logging and telemetry
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[build-dependencies]
+# Required in build.rs to compile the C++ AVX-512 kernel
+cc = "1.0"

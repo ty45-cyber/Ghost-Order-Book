@@ -1,0 +1,56 @@
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger struct CommitmentState {
+    root: Bytes[32];
+    nullifier: Bytes[32];
+}
+
+export ledger state: CommitmentState;
+
+/**
+ * Zero-Knowledge circuit proving valid order constraints (price floor and positive size)
+ * without revealing the actual limit price or size to the public order book.
+ */
+export circuit prove_order_validity(
+    price: Uint[64],
+    quantity: Uint[64],
+    min_price: Uint[64],
+    secret_nonce: Bytes[32]
+): Bytes[32] {
+    // Assert private order constraints inside the ZK proof
+    assert price >= min_price "Order price below minimum execution floor";
+    assert quantity > 0 "Order quantity must be strictly positive";
+
+    // Compute zero-knowledge commitment hash
+    const commitment = persistent_hash(
+        pad(32, "GHOST_ORDER_V1"),
+        price,
+        quantity,
+        secret_nonce
+    );
+
+    return commitment;
+}
+
+/**
+ * Circuit verifying proof nullification during execution to prevent double-filling.
+ */
+export circuit execute_ghost_fill(
+    commitment: Bytes[32],
+    fill_price: Uint[64],
+    fill_quantity: Uint[64],
+    secret_nonce: Bytes[32]
+): Void {
+    const calculated_nullifier = persistent_hash(
+        pad(32, "GHOST_NULLIFIER"),
+        commitment,
+        secret_nonce
+    );
+
+    assert state.nullifier != calculated_nullifier "Ghost commitment already settled";
+
+    // Record nullifier to ledger state
+    state.nullifier = calculated_nullifier;
+}

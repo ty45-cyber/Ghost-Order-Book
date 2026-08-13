@@ -1,0 +1,12 @@
+[project]
+name = "ghost_liquidity"
+version = "0.1.0"
+description = "Zero-Knowledge Ghost Liquidity Circuit"
+authors = ["Ghost Order Book Team"]
+compiler_version = ">= 0.14.0"
+
+[build]
+out_dir = "build"
+# Emit the typescript wrapper for Next.js and the zk-IR artifact for the proof server
+emit_typescript = true
+emit_zkir = true
